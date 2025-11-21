@@ -2,7 +2,7 @@
   import Thumbnail from '$lib/components/assets/thumbnail/thumbnail.svelte';
   import type { DayGroup } from '$lib/managers/timeline-manager/day-group.svelte';
   import type { MonthGroup } from '$lib/managers/timeline-manager/month-group.svelte';
-  import type { TimelineManager } from '$lib/managers/timeline-manager/timeline-manager.svelte';
+  import { TimelineManager } from '$lib/managers/timeline-manager/timeline-manager.svelte';
   import type { TimelineAsset } from '$lib/managers/timeline-manager/types';
   import { assetSnapshot, assetsSnapshot } from '$lib/managers/timeline-manager/utils.svelte';
   import type { AssetInteraction } from '$lib/stores/asset-interaction.svelte';
@@ -14,7 +14,7 @@
 
   import { fromTimelinePlainDate, getDateLocaleString } from '$lib/utils/timeline-util';
   import { Icon } from '@immich/ui';
-  import type { Snippet } from 'svelte';
+  import { type Snippet } from 'svelte';
   import { flip } from 'svelte/animate';
   import { scale } from 'svelte/transition';
 

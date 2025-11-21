@@ -36,6 +36,7 @@ export class MonthGroup {
 
   #initialCount: number = 0;
   #sortOrder: AssetOrder = AssetOrder.Desc;
+  percent: number = $state(0);
 
   assetsCount: number = $derived(
     this.isLoaded
@@ -241,7 +242,6 @@ export class MonthGroup {
     if (this.#height === height) {
       return;
     }
-    let needsIntersectionUpdate = false;
     const timelineManager = this.timelineManager;
     const index = timelineManager.months.indexOf(this);
     const heightDelta = height - this.#height;
@@ -261,11 +261,21 @@ export class MonthGroup {
       const newTop = monthGroup.#top + heightDelta;
       if (monthGroup.#top !== newTop) {
         monthGroup.#top = newTop;
-        needsIntersectionUpdate = true;
       }
     }
-    if (needsIntersectionUpdate) {
-      timelineManager.updateIntersections();
+    if (!timelineManager.viewportTopMonthIntersection) {
+      return;
+    }
+    const { month, monthBottomViewportRatio, viewportTopRatioInMonth } = timelineManager.viewportTopMonthIntersection;
+    const currentIndex = month ? timelineManager.months.indexOf(month) : -1;
+    if (!month || currentIndex <= 0 || index > currentIndex) {
+      return;
+    }
+    if (index < currentIndex || monthBottomViewportRatio < 1) {
+      timelineManager.scrollBy(heightDelta);
+    } else if (index === currentIndex) {
+      const scrollTo = this.top + height * viewportTopRatioInMonth;
+      timelineManager.scrollTo(scrollTo);
     }
   }
 
@@ -301,12 +311,14 @@ export class MonthGroup {
       if (viewerAsset) {
         if (!viewerAsset.position) {
           console.warn('No position for asset');
-          break;
+          return;
         }
-        return this.top + group.top + viewerAsset.position.top + this.timelineManager.headerHeight;
+        return {
+          top: this.top + group.top + viewerAsset.position.top + this.timelineManager.headerHeight,
+          height: viewerAsset.position.height,
+        };
       }
     }
-    return -1;
   }
 
   *assetsIterator(options?: { startDayGroup?: DayGroup; startAsset?: TimelineAsset; direction?: Direction }) {
